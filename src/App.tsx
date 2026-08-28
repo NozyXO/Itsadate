@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import confetti from "canvas-confetti";
 import Penguin, { type PenguinMood } from "./components/Penguin";
 import RunawayNo from "./components/RunawayNo";
-import InviteModal, { type DatePlan } from "./components/InviteModal";
+import InviteModal, { SECRET_PLACE, type DatePlan } from "./components/InviteModal";
 import Ambient, { RisingHearts } from "./components/Ambient";
 import {
   ArrowUpRightIcon,
@@ -210,12 +210,13 @@ export default function App() {
               <p className="font-display text-xl leading-tight font-semibold">
                 {planDate.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" })}
               </p>
-              <p className="mt-1 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-sm font-bold text-cocoa-soft">
+              <p className="mt-1 flex items-center gap-1.5 text-sm font-bold text-cocoa-soft">
                 <ClockIcon size={14} />
                 {planDate.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })}
-                <span className="mx-1 inline-block h-1 w-1 rounded-full bg-cocoa-soft" />
-                <MapPinIcon size={14} className="shrink-0" />
-                <span className="min-w-0">{plan.place}</span>
+              </p>
+              <p className="mt-1.5 flex items-start gap-1.5 text-[12.5px] font-bold text-cocoa-soft">
+                <MapPinIcon size={14} className="mt-0.5 shrink-0 text-berry" />
+                <span className="min-w-0">{SECRET_PLACE}</span>
               </p>
             </div>
           </div>
