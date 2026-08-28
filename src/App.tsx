@@ -16,7 +16,7 @@ import {
 } from "./components/icons";
 
 const QUESTION =
-  "Hi! I'm Swaraaa. I saved you a seat and a fresh cup… would you like to have coffee with me?";
+  "Hi! I'm Swaraaa the poo. I saved you a seat and a fresh cup… would you like to have coffee with me?";
 
 function useTypewriter(text: string, speed = 32, startDelay = 500) {
   const [out, setOut] = useState("");
@@ -124,7 +124,7 @@ export default function App() {
       {phase === "asking" && (
         <main key={round} className="relative z-10 flex min-h-[100dvh] items-center justify-center px-4 pt-20 pb-28 sm:pt-24 sm:pb-32">
           <div className="flex w-full max-w-4xl flex-col items-center gap-4 lg:flex-row lg:gap-14">
-            {/* Pip */}
+            {/* Swaraaa */}
             <div
               key={wiggleKey}
               className={`anim-pop relative z-[6] -mb-7 w-40 shrink-0 sm:-mb-9 sm:w-56 lg:mb-0 lg:w-80 ${wiggleKey ? "anim-wiggle-once" : ""}`}
@@ -145,13 +145,23 @@ export default function App() {
                 an extremely important question
               </span>
 
-              <h1 className="mt-3.5 min-h-[8.75rem] font-display text-[1.45rem] leading-snug font-semibold sm:min-h-[7.5rem] sm:text-[1.75rem] lg:text-[1.95rem]">
+              <h1 className="mt-3.5 min-h-[10.75rem] font-display text-[1.45rem] leading-snug font-semibold sm:min-h-[10rem] sm:text-[1.75rem] lg:min-h-[11.25rem] lg:text-[1.95rem]">
                 {typed}
                 <span className="caret ml-0.5 inline-block h-[0.9em] w-[3px] translate-y-[0.12em] rounded-full bg-berry" />
               </h1>
 
               <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-4">
-                <div style={{ transform: `scale(${1 + Math.min(dodges, 12) * 0.045})`, transition: "transform .35s cubic-bezier(.2,.9,.3,1.3)" }} className="origin-left">
+                <div
+                  style={{
+                    transform: `scale(${1 + Math.min(dodges, 6) * 0.02})`,
+                    // reserve real layout room for the scaled overflow so the
+                    // Yes button never spills over the No slot
+                    marginRight: `${Math.round(Math.min(dodges, 6) * 0.02 * 150)}px`,
+                    transition:
+                      "transform .35s cubic-bezier(.2,.9,.3,1.3), margin-right .35s cubic-bezier(.2,.9,.3,1.3)",
+                  }}
+                  className="origin-left"
+                >
                   <button
                     type="button"
                     onClick={handleYes}

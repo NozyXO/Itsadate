@@ -52,15 +52,20 @@ export default function RunawayNo({ onDodge }: Props) {
   };
 
   const syncToSlot = () => {
+    if (fled.current) return;
     const s = slotRef.current;
     if (!s) return;
     const r = s.getBoundingClientRect();
     setSpot({ x: r.left, y: r.top, r: 0 });
   };
 
-  // Rest on top of the dashed slot before the first escape.
+  // Rest on top of the dashed slot before the first escape. The speech card
+  // pops in with a scale animation, which skews the very first measurement —
+  // so re-sync a few times once the entrance animation has settled.
   useLayoutEffect(() => {
     syncToSlot();
+    const timers = [700, 1500, 2600].map((ms) => window.setTimeout(syncToSlot, ms));
+    return () => timers.forEach((t) => window.clearTimeout(t));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
