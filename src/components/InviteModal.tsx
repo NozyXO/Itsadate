@@ -32,10 +32,10 @@ function buildGcalUrl(date: string, time: string) {
   const end = new Date(start.getTime() + 60 * 60 * 1000);
   const params = new URLSearchParams({
     action: "TEMPLATE",
-    text: "Coffee date with Pip the Penguin ☕🐧",
+    text: "Coffee date with Swaraaa the Penguin ☕🐧",
     dates: `${toGcalStamp(start)}/${toGcalStamp(end)}`,
     details:
-      "You said YES! Pip is already practicing latte art and reserving the comfiest seat. Bring your favorite mug. ☕💛",
+      "You said YES! Swaraaa is already practicing latte art and reserving the comfiest seat. Bring your favorite mug. ☕💛",
     location: "The Cosy Bean Café — corner table by the window",
   });
   return `https://calendar.google.com/calendar/render?${params.toString()}`;
@@ -135,7 +135,7 @@ export default function InviteModal({
             Yay! It&rsquo;s a date!
           </h2>
           <p className="mt-1 max-w-xs text-[15px] font-semibold text-cocoa-soft">
-            Pip is doing a happy dance. Pick a day and time — the first cocoa is on Pip.
+            Swaraaa is doing a happy dance. Pick a day and time — the first cocoa is on Swaraaa.
           </p>
 
           <div className="mt-5 grid w-full grid-cols-1 gap-3 sm:grid-cols-2">
@@ -171,7 +171,7 @@ export default function InviteModal({
 
           {error && (
             <p className="mt-2 font-display text-sm font-semibold text-berry-deep">
-              Pip needs both a day and a time!
+              Swaraaa needs both a day and a time!
             </p>
           )}
 

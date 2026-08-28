@@ -31,10 +31,10 @@ export default function Penguin({
       role="img"
       aria-label={
         party
-          ? "Pip the penguin celebrating with a coffee cup raised high"
+          ? "Swaraaa the penguin celebrating with a coffee cup raised high"
           : worried
-            ? "Pip the penguin looking nervous while holding a coffee cup"
-            : "Pip the penguin holding a steaming coffee cup"
+            ? "Swaraaa the penguin looking nervous while holding a coffee cup"
+            : "Swaraaa the penguin holding a steaming coffee cup"
       }
     >
       {/* ground shadow */}

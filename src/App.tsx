@@ -16,7 +16,7 @@ import {
 } from "./components/icons";
 
 const QUESTION =
-  "Hi! I'm Pip. I saved you a seat and a fresh cup… would you like to have coffee with me?";
+  "Hi! I'm Swaraaa. I saved you a seat and a fresh cup… would you like to have coffee with me?";
 
 function useTypewriter(text: string, speed = 32, startDelay = 500) {
   const [out, setOut] = useState("");
@@ -43,7 +43,7 @@ function dodgeComment(n: number) {
   if (n >= 20) return "Okay, this is just cardio now.";
   if (n >= 15) return "The No button filed a complaint.";
   if (n >= 10) return "Destiny says Yes.";
-  if (n >= 6) return "Pip politely suggests the other button.";
+  if (n >= 6) return "Swaraaa politely suggests the other button.";
   if (n >= 3) return "It really doesn't want to be picked.";
   return "The No button is a little shy.";
 }
@@ -109,7 +109,7 @@ export default function App() {
           <span className="grid h-9 w-9 place-items-center rounded-full border-[3px] border-cocoa bg-sun">
             <CoffeeIcon size={17} />
           </span>
-          <span className="font-display text-lg font-semibold tracking-tight">café pip</span>
+          <span className="font-display text-lg font-semibold tracking-tight">café swaraaa</span>
         </div>
         <div
           className="anim-pop hidden items-center gap-1.5 rounded-full border-[3px] border-cocoa bg-berry px-4 py-2 font-display text-sm font-semibold text-paper shadow-pop-sm sm:flex"
@@ -168,7 +168,7 @@ export default function App() {
               </div>
 
               <p className="mt-3.5 text-[12.5px] font-bold text-cocoa-soft sm:mt-4 sm:text-[13px]">
-                psst — choose wisely. Pip has been rehearsing this all morning.
+                psst — choose wisely. Swaraaa has been rehearsing this all morning.
               </p>
             </div>
           </div>
@@ -189,7 +189,7 @@ export default function App() {
             <path d="M4 9 q 20 -8 40 0 t 40 0 t 40 0 t 40 0 t 40 0" fill="none" stroke="#f26d8d" strokeWidth="6" strokeLinecap="round" />
           </svg>
           <p className="anim-pop mt-3 max-w-sm text-[15px] font-bold text-cocoa-soft" style={{ animationDelay: "0.26s" }}>
-            Pip already put the kettle on and is practicing latte art in your honor.
+            Swaraaa already put the kettle on and is practicing latte art in your honor.
           </p>
 
           <div className="anim-pop mt-6 flex items-center gap-4 rounded-3xl border-4 border-cocoa bg-paper p-5 text-left shadow-chunky" style={{ animationDelay: "0.34s" }}>
@@ -261,7 +261,7 @@ export default function App() {
           </div>
         )}
         <div className="ml-auto hidden items-center gap-1.5 rounded-full border-[3px] border-cocoa bg-paper px-4 py-2 font-display text-sm font-semibold shadow-pop-sm md:flex">
-          brewed with <HeartIcon size={13} className="fill-berry text-berry" /> by pip
+          brewed with <HeartIcon size={13} className="fill-berry text-berry" /> by swaraaa
         </div>
       </footer>
 
