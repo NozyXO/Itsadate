@@ -120,6 +120,10 @@ input[type="time"] {
   }
 }
 
+.anim-spin {
+  animation: kf-spin-slow 0.9s linear infinite;
+}
+
 @keyframes kf-blink {
   0%,
   90%,

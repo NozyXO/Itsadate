@@ -81,3 +81,16 @@ export const RotateIcon = (p: P) => (
     <path d="M3 3v5h5" />
   </svg>
 );
+
+export const SearchIcon = (p: P) => (
+  <svg {...base(p)}>
+    <circle cx="11" cy="11" r="7" />
+    <path d="m21 21-4.3-4.3" />
+  </svg>
+);
+
+export const CheckIcon = (p: P) => (
+  <svg {...base(p)}>
+    <path d="M20 6 9 17l-5-5" />
+  </svg>
+);

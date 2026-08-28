@@ -210,12 +210,12 @@ export default function App() {
               <p className="font-display text-xl leading-tight font-semibold">
                 {planDate.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" })}
               </p>
-              <p className="mt-1 flex items-center gap-1.5 text-sm font-bold text-cocoa-soft">
+              <p className="mt-1 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-sm font-bold text-cocoa-soft">
                 <ClockIcon size={14} />
                 {planDate.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })}
                 <span className="mx-1 inline-block h-1 w-1 rounded-full bg-cocoa-soft" />
-                <MapPinIcon size={14} />
-                The Cosy Bean Café
+                <MapPinIcon size={14} className="shrink-0" />
+                <span className="min-w-0">{plan.place}</span>
               </p>
             </div>
           </div>
