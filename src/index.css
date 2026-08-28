@@ -1,0 +1,331 @@
+@import "tailwindcss";
+
+@theme {
+  --color-mint: #e6f3ea;
+  --color-mint-deep: #cde7d8;
+  --color-mint-dark: #aed6c2;
+  --color-cocoa: #43302b;
+  --color-cocoa-soft: #7a6259;
+  --color-berry: #f26d8d;
+  --color-berry-deep: #d94f72;
+  --color-sun: #ffc53d;
+  --color-sun-deep: #f0a62a;
+  --color-teal: #2e9e8f;
+  --color-teal-deep: #1f7f73;
+  --color-sky: #a9dbf2;
+  --color-sky-deep: #7fb6d9;
+  --color-cream: #fff6e6;
+  --color-paper: #fffdf8;
+  --color-beak: #ff9e4f;
+
+  --font-display: "Fredoka", "Nunito", ui-rounded, sans-serif;
+  --font-body: "Nunito", ui-rounded, sans-serif;
+}
+
+html,
+body {
+  margin: 0;
+  background: var(--color-mint);
+}
+
+::selection {
+  background: var(--color-berry);
+  color: #fff;
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-teal);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+button,
+a,
+input {
+  -webkit-tap-highlight-color: transparent;
+}
+
+input[type="date"],
+input[type="time"] {
+  min-height: 46px;
+}
+
+/* ---------- sticker / kawaii building blocks ---------- */
+
+.dotty-bg {
+  background-image: radial-gradient(rgba(67, 48, 43, 0.08) 1.6px, transparent 1.6px);
+  background-size: 26px 26px;
+}
+
+.shadow-chunky {
+  box-shadow: 0 10px 0 rgba(67, 48, 43, 0.13);
+}
+
+.shadow-pop {
+  box-shadow: 0 5px 0 var(--color-cocoa);
+}
+
+.shadow-pop-lg {
+  box-shadow: 0 7px 0 var(--color-cocoa);
+}
+
+.btn-push {
+  transition:
+    transform 0.14s ease,
+    box-shadow 0.14s ease,
+    background-color 0.14s ease;
+}
+.btn-push:hover {
+  transform: translateY(-2px);
+}
+.btn-push:active {
+  transform: translateY(4px);
+  box-shadow: 0 1px 0 var(--color-cocoa);
+}
+
+/* ---------- keyframes ---------- */
+
+@keyframes kf-bob {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-1.4deg);
+  }
+  50% {
+    transform: translateY(-9px) rotate(1.4deg);
+  }
+}
+
+@keyframes kf-floaty {
+  0%,
+  100% {
+    transform: translateY(0) rotate(var(--tilt, 0deg));
+  }
+  50% {
+    transform: translateY(-14px) rotate(calc(var(--tilt, 0deg) + 7deg));
+  }
+}
+
+@keyframes kf-drift {
+  from {
+    transform: translateX(-4%);
+  }
+  to {
+    transform: translateX(5%);
+  }
+}
+
+@keyframes kf-spin-slow {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.anim-spin {
+  animation: kf-spin-slow 0.9s linear infinite;
+}
+
+@keyframes kf-blink {
+  0%,
+  90%,
+  100% {
+    transform: scaleY(1);
+  }
+  94% {
+    transform: scaleY(0.06);
+  }
+}
+
+@keyframes kf-steam {
+  0% {
+    opacity: 0;
+    transform: translateY(8px) scale(0.9);
+  }
+  30% {
+    opacity: 0.9;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-20px) scale(1.05);
+  }
+}
+
+@keyframes kf-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.55) translateY(14px);
+  }
+  70% {
+    opacity: 1;
+    transform: scale(1.05) translateY(-2px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes kf-wiggle {
+  0% {
+    transform: rotate(0);
+  }
+  20% {
+    transform: rotate(-6deg);
+  }
+  40% {
+    transform: rotate(5deg);
+  }
+  60% {
+    transform: rotate(-4deg);
+  }
+  80% {
+    transform: rotate(2deg);
+  }
+  100% {
+    transform: rotate(0);
+  }
+}
+
+@keyframes kf-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-9px);
+  }
+  40% {
+    transform: translateX(8px);
+  }
+  60% {
+    transform: translateX(-6px);
+  }
+  80% {
+    transform: translateX(5px);
+  }
+}
+
+@keyframes kf-rise {
+  0% {
+    opacity: 0;
+    transform: translateY(12vh) scale(0.7);
+  }
+  15% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-92vh) scale(1.15);
+  }
+}
+
+@keyframes kf-twinkle {
+  0%,
+  100% {
+    opacity: 0.15;
+    transform: scale(0.6) rotate(0deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1) rotate(18deg);
+  }
+}
+
+@keyframes kf-caret {
+  0%,
+  45% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes kf-dash {
+  to {
+    stroke-dashoffset: -24;
+  }
+}
+
+/* ---------- animation helper classes ---------- */
+
+.anim-bob {
+  animation: kf-bob 3.4s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+}
+
+.anim-floaty {
+  animation: kf-floaty var(--dur, 5s) ease-in-out infinite;
+}
+
+.anim-drift {
+  animation: kf-drift var(--dur, 26s) ease-in-out infinite alternate;
+}
+
+.anim-spin-slow {
+  animation: kf-spin-slow 42s linear infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.anim-pop {
+  animation: kf-pop 0.55s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+}
+
+.anim-wiggle-once {
+  animation: kf-wiggle 0.55s ease-in-out both;
+}
+
+.anim-shake {
+  animation: kf-shake 0.45s ease-in-out both;
+}
+
+.anim-twinkle {
+  animation: kf-twinkle var(--dur, 2.2s) ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.blink {
+  animation: kf-blink 4.4s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.steam {
+  animation: kf-steam 2.8s ease-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.caret {
+  animation: kf-caret 0.9s step-end infinite;
+}
+
+.anim-rise {
+  animation: kf-rise var(--dur, 7s) linear infinite;
+}
+
+.runaway-transition {
+  transition: transform 0.38s cubic-bezier(0.22, 0.9, 0.3, 1.18);
+  will-change: transform;
+}
+
+.squiggle path {
+  stroke-dasharray: 12 12;
+  animation: kf-dash 1.4s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
