@@ -39,6 +39,17 @@ body {
   border-radius: 6px;
 }
 
+button,
+a,
+input {
+  -webkit-tap-highlight-color: transparent;
+}
+
+input[type="date"],
+input[type="time"] {
+  min-height: 46px;
+}
+
 /* ---------- sticker / kawaii building blocks ---------- */
 
 .dotty-bg {

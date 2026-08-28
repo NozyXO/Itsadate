@@ -78,7 +78,7 @@ export default function RunawayNo({ onDodge }: Props) {
   }, [offset]);
 
   return (
-    <div className="relative h-[54px] w-[122px]" aria-hidden="false">
+    <div className="relative h-[52px] w-[132px] sm:h-[54px] sm:w-[150px]" aria-hidden="false">
       {/* ghost slot keeps layout stable while the button is on the run */}
       <div className="absolute inset-0 rounded-full border-[3px] border-dashed border-cocoa/25" />
       <button
@@ -90,14 +90,16 @@ export default function RunawayNo({ onDodge }: Props) {
           const t = e.touches[0];
           if (t) flee(t.clientX, t.clientY);
         }}
-        className={`absolute inset-0 rounded-full border-[3px] border-cocoa bg-paper font-display text-lg font-semibold text-cocoa ${
+        className={`absolute inset-0 rounded-full border-[3px] border-cocoa bg-paper px-1 font-display text-[15px] font-semibold whitespace-nowrap text-cocoa select-none ${
           offset ? "runaway-transition z-50 shadow-pop" : "shadow-pop-sm"
         }`}
-        style={
-          offset
+        style={{
+          touchAction: "manipulation",
+          willChange: "transform",
+          ...(offset
             ? { transform: `translate(${offset.dx}px, ${offset.dy}px) rotate(${offset.r}deg)` }
-            : undefined
-        }
+            : {}),
+        }}
       >
         {TAUNTS[tauntIdx]}
       </button>

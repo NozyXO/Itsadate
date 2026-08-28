@@ -122,27 +122,30 @@ export default function App() {
 
       {/* ---------- asking scene ---------- */}
       {phase === "asking" && (
-        <main key={round} className="relative z-10 flex min-h-[100dvh] items-center justify-center px-4 pt-24 pb-32">
+        <main key={round} className="relative z-10 flex min-h-[100dvh] items-center justify-center px-4 pt-20 pb-28 sm:pt-24 sm:pb-32">
           <div className="flex w-full max-w-4xl flex-col items-center gap-4 lg:flex-row lg:gap-14">
             {/* Pip */}
-            <div key={wiggleKey} className={`anim-pop w-52 shrink-0 sm:w-64 lg:w-80 ${wiggleKey ? "anim-wiggle-once" : ""}`}>
+            <div
+              key={wiggleKey}
+              className={`anim-pop relative z-[6] -mb-7 w-40 shrink-0 sm:-mb-9 sm:w-56 lg:mb-0 lg:w-80 ${wiggleKey ? "anim-wiggle-once" : ""}`}
+            >
               <Penguin mood={mood} className="w-full" />
             </div>
 
             {/* speech bubble */}
             <div
-              className="anim-pop relative w-full max-w-xl rounded-[2.2rem] border-4 border-cocoa bg-paper p-6 shadow-chunky md:p-8"
+              className="anim-pop relative w-full max-w-xl rounded-[2.2rem] border-4 border-cocoa bg-paper p-5 shadow-chunky sm:p-6 md:p-8"
               style={{ animationDelay: "0.18s" }}
             >
               {/* tail */}
               <span className="absolute top-1/2 -left-[15px] hidden h-7 w-7 -translate-y-1/2 rotate-45 border-b-4 border-l-4 border-cocoa bg-paper lg:block" />
 
-              <span className="inline-flex items-center gap-1.5 rounded-full border-[3px] border-cocoa bg-sky px-3.5 py-1 font-display text-[11px] font-semibold tracking-[0.14em] text-cocoa uppercase">
+              <span className="inline-flex items-center gap-1.5 rounded-full border-[3px] border-cocoa bg-sky px-3.5 py-1 font-display text-[10px] font-semibold tracking-[0.08em] text-cocoa uppercase sm:text-[11px] sm:tracking-[0.14em]">
                 <SparkleIcon size={13} />
                 an extremely important question
               </span>
 
-              <h1 className="mt-4 min-h-[7.5rem] font-display text-[1.62rem] leading-snug font-semibold sm:text-[1.95rem]">
+              <h1 className="mt-3.5 min-h-[8.75rem] font-display text-[1.45rem] leading-snug font-semibold sm:min-h-[7.5rem] sm:text-[1.75rem] lg:text-[1.95rem]">
                 {typed}
                 <span className="caret ml-0.5 inline-block h-[0.9em] w-[3px] translate-y-[0.12em] rounded-full bg-berry" />
               </h1>
@@ -154,7 +157,7 @@ export default function App() {
                     onClick={handleYes}
                     onMouseEnter={() => setMood("happy")}
                     onMouseLeave={() => setMood((m) => (m === "happy" ? "idle" : m))}
-                    className="btn-push flex items-center gap-2 rounded-full border-4 border-cocoa bg-sun px-8 py-3 font-display text-xl font-semibold whitespace-nowrap text-cocoa shadow-pop"
+                    className="btn-push flex items-center gap-2 rounded-full border-4 border-cocoa bg-sun px-6 py-2.5 font-display text-lg font-semibold whitespace-nowrap text-cocoa shadow-pop sm:px-8 sm:py-3 sm:text-xl"
                   >
                     <CoffeeIcon size={20} />
                     {yesLabel(dodges)}
@@ -164,7 +167,7 @@ export default function App() {
                 {!modalOpen && <RunawayNo onDodge={handleDodge} />}
               </div>
 
-              <p className="mt-4 text-[13px] font-bold text-cocoa-soft">
+              <p className="mt-3.5 text-[12.5px] font-bold text-cocoa-soft sm:mt-4 sm:text-[13px]">
                 psst — choose wisely. Pip has been rehearsing this all morning.
               </p>
             </div>
@@ -174,12 +177,12 @@ export default function App() {
 
       {/* ---------- confirmed scene ---------- */}
       {phase === "confirmed" && plan && planDate && (
-        <main className="relative z-10 flex min-h-[100dvh] flex-col items-center justify-center px-4 pt-24 pb-28 text-center">
+        <main className="relative z-10 flex min-h-[100dvh] flex-col items-center justify-center px-4 pt-20 pb-24 text-center sm:pt-24 sm:pb-28">
           <div className="anim-pop w-48 sm:w-60">
             <Penguin mood="party" className="w-full" />
           </div>
 
-          <h1 className="anim-pop mt-2 font-display text-5xl font-semibold tracking-tight sm:text-6xl" style={{ animationDelay: "0.12s" }}>
+          <h1 className="anim-pop mt-2 font-display text-4xl font-semibold tracking-tight sm:text-6xl" style={{ animationDelay: "0.12s" }}>
             It&rsquo;s a date!
           </h1>
           <svg viewBox="0 0 220 14" className="squiggle anim-pop mx-auto mt-1 w-52 sm:w-64" style={{ animationDelay: "0.2s" }} aria-hidden="true">

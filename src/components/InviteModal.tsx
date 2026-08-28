@@ -102,7 +102,7 @@ export default function InviteModal({
         className="absolute inset-0 cursor-default bg-cocoa/45"
       />
       <div
-        className={`anim-pop relative w-full max-w-md rounded-[2rem] border-4 border-cocoa bg-paper shadow-chunky ${
+        className={`anim-pop relative max-h-[92dvh] w-full max-w-md overflow-y-auto overscroll-contain rounded-[2rem] border-4 border-cocoa bg-paper shadow-chunky ${
           error ? "anim-shake" : ""
         }`}
       >
@@ -126,12 +126,12 @@ export default function InviteModal({
           <XIcon size={18} />
         </button>
 
-        <div className="flex flex-col items-center px-7 pt-2 pb-7 text-center">
-          <div className="-mb-2 w-36">
+        <div className="flex flex-col items-center px-5 pt-2 pb-6 text-center sm:px-7 sm:pb-7">
+          <div className="-mb-2 w-28 sm:w-36">
             <Penguin mood="party" className="w-full" />
           </div>
 
-          <h2 className="font-display text-[1.9rem] leading-tight font-semibold text-cocoa">
+          <h2 className="font-display text-2xl leading-tight font-semibold text-cocoa sm:text-[1.9rem]">
             Yay! It&rsquo;s a date!
           </h2>
           <p className="mt-1 max-w-xs text-[15px] font-semibold text-cocoa-soft">
@@ -148,7 +148,7 @@ export default function InviteModal({
                 value={date}
                 min={todayStr()}
                 onChange={(e) => setDate(e.target.value)}
-                className="mt-1.5 w-full rounded-xl border-[3px] border-cocoa bg-paper px-3 py-2 font-body text-[15px] font-bold text-cocoa outline-none focus:border-teal"
+                className="mt-1.5 w-full rounded-xl border-[3px] border-cocoa bg-paper px-3 py-2.5 font-body text-base font-bold text-cocoa outline-none focus:border-teal"
               />
             </label>
             <label className="block rounded-2xl border-[3px] border-cocoa bg-mint p-3 text-left shadow-pop-sm">
@@ -159,7 +159,7 @@ export default function InviteModal({
                 type="time"
                 value={time}
                 onChange={(e) => setTime(e.target.value)}
-                className="mt-1.5 w-full rounded-xl border-[3px] border-cocoa bg-paper px-3 py-2 font-body text-[15px] font-bold text-cocoa outline-none focus:border-teal"
+                className="mt-1.5 w-full rounded-xl border-[3px] border-cocoa bg-paper px-3 py-2.5 font-body text-base font-bold text-cocoa outline-none focus:border-teal"
               />
             </label>
           </div>
@@ -178,7 +178,7 @@ export default function InviteModal({
           <button
             type="button"
             onClick={confirm}
-            className="btn-push mt-5 flex w-full items-center justify-center gap-2 rounded-full border-4 border-cocoa bg-sun px-6 py-3.5 font-display text-xl font-semibold text-cocoa shadow-pop"
+            className="btn-push mt-4 flex w-full items-center justify-center gap-2 rounded-full border-4 border-cocoa bg-sun px-5 py-3 font-display text-lg font-semibold text-cocoa shadow-pop sm:mt-5 sm:px-6 sm:py-3.5 sm:text-xl"
           >
             <CoffeeIcon size={20} />
             Confirm &amp; save to Google Calendar
