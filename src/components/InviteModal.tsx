@@ -41,7 +41,7 @@ function buildGcalUrl(date: string, time: string) {
   const end = new Date(start.getTime() + 60 * 60 * 1000);
   const params = new URLSearchParams({
     action: "TEMPLATE",
-    text: "Coffee date with Swaraaa the Penguin ☕🐧",
+    text: "Coffee date with Swaraaa the Poo ☕🐧",
     dates: `${toGcalStamp(start)}/${toGcalStamp(end)}`,
     details:
       "You said YES! Swaraaa is already practicing latte art and reserving the comfiest seat. Bring your favorite mug. ☕💛",
