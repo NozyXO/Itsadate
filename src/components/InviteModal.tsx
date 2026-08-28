@@ -18,15 +18,23 @@ export interface DatePlan {
   gcalUrl: string;
 }
 
+type Geo = { lat: number; lon: number };
+
 type PlaceResult = {
   id: string;
   name: string;
   detail: string;
+  lat?: number;
+  lon?: number;
+  nearby?: boolean;
+  dist?: number; // km from the user, when known
 };
 
 type SearchStatus = "idle" | "searching" | "done" | "error";
+type LocState = "idle" | "locating" | "on" | "off";
 
 const CONFETTI_COLORS = ["#f26d8d", "#ffc53d", "#2e9e8f", "#a9dbf2", "#fff6e6", "#ff9e4f"];
+const CAFE_RX = /caf(e|é|è)|coffee|kaffee|espresso|roaster/i;
 
 function todayStr() {
   const d = new Date();
@@ -58,7 +66,23 @@ function buildGcalUrl(date: string, time: string, place: string) {
   return `https://calendar.google.com/calendar/render?${params.toString()}`;
 }
 
-/* ---------- place search (OpenStreetMap / Nominatim) ---------- */
+/* ---------- geo helpers ---------- */
+
+function haversineKm(a: Geo, b: Geo) {
+  const R = 6371;
+  const dLat = ((b.lat - a.lat) * Math.PI) / 180;
+  const dLon = ((b.lon - a.lon) * Math.PI) / 180;
+  const s =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos((a.lat * Math.PI) / 180) * Math.cos((b.lat * Math.PI) / 180) * Math.sin(dLon / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(s));
+}
+
+function fmtDist(km: number) {
+  return km < 1 ? `${Math.max(1, Math.round(km * 1000))} m` : `${km.toFixed(1)} km`;
+}
+
+/* ---------- place search: OpenStreetMap text index + real café POIs ---------- */
 
 function formatDetail(raw: Record<string, unknown>): string {
   const a = (raw.address ?? {}) as Record<string, string | undefined>;
@@ -80,16 +104,86 @@ function formatDetail(raw: Record<string, unknown>): string {
     .join(", ");
 }
 
-async function searchPlaces(q: string, signal: AbortSignal): Promise<PlaceResult[]> {
-  const url = `https://nominatim.openstreetmap.org/search?format=jsonv2&limit=6&addressdetails=1&q=${encodeURIComponent(q)}`;
-  const res = await fetch(url, { signal, headers: { Accept: "application/json" } });
+/** Global text search (Nominatim). Biased toward the user when we know where they are. */
+async function searchPlaces(q: string, loc: Geo | null, signal: AbortSignal): Promise<PlaceResult[]> {
+  const params = new URLSearchParams({
+    format: "jsonv2",
+    limit: "8",
+    addressdetails: "1",
+    "accept-language": "en",
+    q,
+  });
+  if (loc) {
+    const d = 0.35; // ~35 km box
+    params.set("viewbox", `${loc.lon - d},${loc.lat + d},${loc.lon + d},${loc.lat - d}`);
+    params.set("bounded", "0");
+  }
+  const res = await fetch(`https://nominatim.openstreetmap.org/search?${params.toString()}`, {
+    signal,
+    headers: { Accept: "application/json" },
+  });
   if (!res.ok) throw new Error("search failed");
   const data = (await res.json()) as Array<Record<string, unknown>>;
   return data.map((r, i) => ({
-    id: `${String(r.place_id ?? "x")}-${i}`,
+    id: `n-${String(r.place_id ?? "x")}-${i}`,
     name: String(r.name || String(r.display_name ?? q).split(",")[0] || q),
     detail: formatDetail(r) || String(r.display_name ?? ""),
+    lat: Number(r.lat),
+    lon: Number(r.lon),
   }));
+}
+
+/** Actual café / coffee-shop points on the map around the user (Overpass API). */
+async function cafesNearby(loc: Geo, signal: AbortSignal): Promise<PlaceResult[]> {
+  const q = `[out:json][timeout:8];(node["amenity"~"^(cafe|coffee_shop)$"](around:2500,${loc.lat},${loc.lon});way["amenity"~"^(cafe|coffee_shop)$"](around:2500,${loc.lat},${loc.lon}););out center tags 40;`;
+  const res = await fetch(`https://overpass-api.de/api/interpreter?data=${encodeURIComponent(q)}`, { signal });
+  if (!res.ok) throw new Error("overpass failed");
+  const data = (await res.json()) as {
+    elements?: Array<{
+      type: string;
+      id: number;
+      lat?: number;
+      lon?: number;
+      center?: { lat: number; lon: number };
+      tags?: Record<string, string>;
+    }>;
+  };
+  return (data.elements ?? [])
+    .filter((e) => e.tags?.name)
+    .map((e) => {
+      const lat = e.lat ?? e.center?.lat;
+      const lon = e.lon ?? e.center?.lon;
+      const t = e.tags ?? {};
+      const street = [t["addr:housenumber"], t["addr:street"]].filter(Boolean).join(" ");
+      const detail = [street, t["addr:city"] || t["addr:town"] || t["addr:suburb"], t.cuisine]
+        .filter(Boolean)
+        .join(", ");
+      return { id: `o-${e.type}-${e.id}`, name: t.name!, detail, lat, lon, nearby: true };
+    });
+}
+
+/** Merge both sources, dedupe by name, closest first when the user's spot is known. */
+async function findPlaces(q: string, loc: Geo | null, signal: AbortSignal): Promise<PlaceResult[]> {
+  const [cafes, text] = await Promise.allSettled([
+    loc && CAFE_RX.test(q) ? cafesNearby(loc, signal) : Promise.resolve([] as PlaceResult[]),
+    searchPlaces(q, loc, signal),
+  ]);
+
+  const merged: PlaceResult[] = [];
+  const seen = new Set<string>();
+  const push = (r: PlaceResult) => {
+    const key = r.name.trim().toLowerCase();
+    if (!key || seen.has(key)) return;
+    seen.add(key);
+    const dist =
+      loc && Number.isFinite(r.lat) && Number.isFinite(r.lon)
+        ? haversineKm(loc, { lat: r.lat as number, lon: r.lon as number })
+        : undefined;
+    merged.push({ ...r, dist });
+  };
+  if (cafes.status === "fulfilled") cafes.value.forEach(push);
+  if (text.status === "fulfilled") text.value.forEach(push);
+  return merged.sort((a, b) => (a.dist ?? 1e9) - (b.dist ?? 1e9));
 }
 
 /* ---------- confetti ---------- */
@@ -106,10 +200,10 @@ function burst() {
   );
 }
 
-function Spinner() {
+function Spinner({ className = "h-4 w-4" }: { className?: string }) {
   return (
     <svg
-      className="anim-spin h-4 w-4 text-cocoa-soft"
+      className={`anim-spin ${className} text-cocoa-soft`}
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -139,6 +233,9 @@ export default function InviteModal({
   const [listOpen, setListOpen] = useState(false);
   const [chosen, setChosen] = useState<PlaceResult | null>(null);
   const [error, setError] = useState(false);
+  const [loc, setLoc] = useState<Geo | null>(null);
+  const [locState, setLocState] = useState<LocState>("idle");
+  const [refresh, setRefresh] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const blurTimer = useRef(0);
 
@@ -171,7 +268,7 @@ export default function InviteModal({
 
   useEffect(() => () => window.clearTimeout(blurTimer.current), []);
 
-  // debounced place lookup
+  // debounced place lookup — re-runs when location arrives or a refresh is forced
   useEffect(() => {
     const q = query.trim();
     if (q.length < 2) {
@@ -184,7 +281,7 @@ export default function InviteModal({
     setStatus("searching");
     const t = window.setTimeout(async () => {
       try {
-        const found = await searchPlaces(q, ctrl.signal);
+        const found = await findPlaces(q, loc, ctrl.signal);
         setResults(found);
         setStatus("done");
         setListOpen(found.length > 0);
@@ -200,9 +297,35 @@ export default function InviteModal({
       ctrl.abort();
       window.clearTimeout(t);
     };
-  }, [query]);
+  }, [query, loc, refresh]);
 
   if (!open) return null;
+
+  const requestLoc = () => {
+    if (locState === "locating") return;
+    if (!("geolocation" in navigator)) {
+      setLocState("off");
+      return;
+    }
+    setLocState("locating");
+    navigator.geolocation.getCurrentPosition(
+      (p) => {
+        setLoc({ lat: p.coords.latitude, lon: p.coords.longitude });
+        setLocState("on");
+      },
+      () => setLocState("off"),
+      { timeout: 8000, maximumAge: 10 * 60 * 1000 },
+    );
+  };
+
+  const nearbyCafes = () => {
+    setChosen(null);
+    setListOpen(false);
+    setQuery("cafe");
+    setRefresh((r) => r + 1);
+    if (!loc) requestLoc();
+    window.setTimeout(() => inputRef.current?.focus(), 60);
+  };
 
   const pick = (r: PlaceResult) => {
     setChosen(r);
@@ -310,9 +433,23 @@ export default function InviteModal({
 
           {/* place picker */}
           <div className="mt-3 w-full rounded-2xl border-[3px] border-cocoa bg-mint p-3 text-left shadow-pop-sm">
-            <label htmlFor="place-input" className="flex items-center gap-1.5 font-display text-sm font-semibold text-cocoa">
-              <MapPinIcon size={16} /> Pick a place
-            </label>
+            <div className="flex items-center gap-1.5">
+              <label htmlFor="place-input" className="flex items-center gap-1.5 font-display text-sm font-semibold text-cocoa">
+                <MapPinIcon size={16} /> Pick a place
+              </label>
+              <button
+                type="button"
+                onClick={requestLoc}
+                className={`btn-push ml-auto flex items-center gap-1 rounded-full border-2 px-2 py-0.5 font-display text-[11px] font-semibold ${
+                  locState === "on"
+                    ? "border-teal bg-teal text-paper"
+                    : "border-cocoa bg-paper text-cocoa shadow-pop-sm"
+                }`}
+              >
+                {locState === "locating" ? <Spinner className="h-3 w-3" /> : <MapPinIcon size={11} />}
+                {locState === "on" ? "Near you ✓" : locState === "off" ? "No location" : "Near me"}
+              </button>
+            </div>
             <div className="relative mt-1.5">
               <span className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-cocoa-soft">
                 <SearchIcon size={15} />
@@ -362,7 +499,7 @@ export default function InviteModal({
 
               {/* live results */}
               {listOpen && results.length > 0 && (
-                <ul className="absolute inset-x-0 top-[calc(100%+6px)] z-30 max-h-52 overflow-y-auto rounded-xl border-[3px] border-cocoa bg-paper text-left shadow-chunky">
+                <ul className="absolute inset-x-0 top-[calc(100%+6px)] z-30 max-h-56 overflow-y-auto rounded-xl border-[3px] border-cocoa bg-paper text-left shadow-chunky">
                   {results.map((r, i) => (
                     <li key={r.id}>
                       <button
@@ -371,12 +508,12 @@ export default function InviteModal({
                           e.preventDefault();
                           pick(r);
                         }}
-                        className={`flex w-full items-start gap-2 px-3 py-2.5 text-left hover:bg-cream focus:bg-cream ${
+                        className={`flex w-full items-center gap-2 px-3 py-2.5 text-left hover:bg-cream focus:bg-cream ${
                           i > 0 ? "border-t-2 border-cocoa/10" : ""
                         }`}
                       >
-                        <MapPinIcon size={15} className="mt-0.5 shrink-0 text-berry" />
-                        <span className="min-w-0">
+                        <MapPinIcon size={15} className="shrink-0 text-berry" />
+                        <span className="min-w-0 flex-1">
                           <span className="block truncate font-display text-[14.5px] font-semibold text-cocoa">
                             {r.name}
                           </span>
@@ -384,12 +521,44 @@ export default function InviteModal({
                             {r.detail}
                           </span>
                         </span>
+                        {(r.nearby || r.dist != null) && (
+                          <span className="flex shrink-0 flex-col items-end gap-1">
+                            {r.nearby && (
+                              <span className="rounded-full border-2 border-teal/50 bg-mint px-1.5 py-px font-display text-[10px] font-semibold text-teal-deep">
+                                café
+                              </span>
+                            )}
+                            {r.dist != null && (
+                              <span className="font-display text-[10.5px] font-semibold text-cocoa-soft">
+                                {fmtDist(r.dist)}
+                              </span>
+                            )}
+                          </span>
+                        )}
                       </button>
                     </li>
                   ))}
                 </ul>
               )}
             </div>
+
+            {!chosen && (
+              <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={nearbyCafes}
+                  className="btn-push flex items-center gap-1 rounded-full border-2 border-cocoa bg-sun px-2.5 py-1 font-display text-[11.5px] font-semibold text-cocoa shadow-pop-sm"
+                >
+                  <CoffeeIcon size={12} />
+                  Cafés near me
+                </button>
+                {locState !== "on" && (
+                  <span className="text-[11px] font-bold text-cocoa-soft">
+                    ← pulls real coffee spots from the map
+                  </span>
+                )}
+              </div>
+            )}
 
             {chosen ? (
               <p className="mt-2 flex items-start gap-1.5 rounded-lg border-[3px] border-teal/40 bg-paper px-2.5 py-1.5 text-[12.5px] font-bold text-cocoa">
@@ -407,8 +576,13 @@ export default function InviteModal({
                 {status === "error" && "Couldn't reach the map — you can still just type a place."}
                 {status === "done" &&
                   results.length === 0 &&
-                  `No matches for "${query.trim()}" — try another spelling, or keep it as-is.`}
-                {status === "idle" && "Live places via OpenStreetMap — or just type your own spot ☕"}
+                  `No matches for "${query.trim()}" — try adding your city, or keep it as-is.`}
+                {status === "idle" &&
+                  locState === "on" &&
+                  "Searching near you — add a city name for far-away spots ☕"}
+                {status === "idle" &&
+                  locState !== "on" &&
+                  "Map data via OpenStreetMap. Spot missing? Add your city — e.g. “Kaffeine London”."}
               </p>
             )}
           </div>
